@@ -24,4 +24,17 @@ hidden = Layer(neuronCount=10,position=2,activation="linear")
 hidden2 = Layer(neuronCount=4,position=3,activation="linear")
 output = Layer(neuronCount=1,position=-1,activation="linear")
 ```
+### Add declared layers into the network 
 
+```python
+#add them in order (inputLayer->first , outputLayer->last)
+network.add(layer=inputl)
+network.add(layer=hidden)
+network.add(layer=hidden2)
+network.add(layer=output)
+```
+### Compile or initilise the network setup
+
+```python
+network.compile()
+```
