@@ -1,9 +1,7 @@
-# import sys
-# sys.path.append("D:/ACtive/My_MachineLearning_Library/ANN")
-from ANN import Ann ,Layer
+from SJNET import Network ,Layer
 import pandas as pd
 
-data = pd.read_csv("csv.csv",header=None,delimiter=",")
+data = pd.read_csv("data.csv",header=None,delimiter=",")
 
 X=[]
 Y=[]
@@ -23,11 +21,11 @@ hidden = Layer(neuronCount=10,position=2,activation="linear")
 hidden2 = Layer(neuronCount=4,position=3,activation="linear")
 output = Layer(neuronCount=1,position=-1,activation="linear")
 
-Network = Ann(X=X,Y=Y,learningRate=0.0002,epoch=1000,errorThresh=3)
+network = Network(X=X,Y=Y,learningRate=0.0002,epoch=1000,errorThresh=3)
 
-Network.add(layer=inputl)
-Network.add(layer=hidden)
-Network.add(layer=hidden2)
-Network.add(layer=output)
-Network.compile()
-Network.Train()
+network.add(layer=inputl)
+network.add(layer=hidden)
+network.add(layer=hidden2)
+network.add(layer=output)
+network.compile()
+network.Train()

@@ -4,7 +4,7 @@ import copy
 import math
 
 
-class Ann:
+class Network:
 
     def __init__(self,X=None,Y=None,errorThresh = 0.01,learningRate=0.02,epoch=200):
         """"
@@ -122,7 +122,21 @@ class Ann:
         for i in range(layercount-1):
             self.forward(layer1=self.LayerArr[i],layer2=self.LayerArr[i+1])
         print(self.LayerArr[-1].neuronvals)
-        
+
+    def save(self,name="model"):
+
+        with open(f"{name}.txt","w") as f:
+            f.write(f"name:{name}\n Lcount:{len(self.LayerArr)}")
+            f.write("\nlayers\n")
+
+        for i in range(len(self.LayerArr)-1):
+            if i!=0:
+                with open(f"{name}.txt","a") as f:
+                    
+                    f.write(f"{self.LayerArr[i].neuronCount}\n")
+                    f.write(f"{self.LayerArr[i].weights}\n")
+                    f.write(f"{self.LayerArr[i].bias}\n")
+
     def add(self,layer=None):
         """""
         use this function to add layers into network in order such that
