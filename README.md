@@ -50,8 +50,8 @@ network.Train()
 
 ```python
 # use this after training is finished preferably in jupyter notebook
+# see Ann_Stochastic_Descent2.ipynb for more details
 network.predict(inputvals=[3.1, 2.5])
-```
 ```
 ## These functions are used and can be used as reference in Ann_Stochastic_Descent2.ipynb and test.py
 
