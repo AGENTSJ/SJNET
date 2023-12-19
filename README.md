@@ -39,7 +39,6 @@ output = Layer(neuronCount=1,position=-1,activation="linear")
 #add them in order (inputLayer->first , outputLayer->last)
 network.add(layer=inputl)
 network.add(layer=hidden)
-network.add(layer=hidden2)
 network.add(layer=output)
 ```
 ### Compile or initilise the network setup
