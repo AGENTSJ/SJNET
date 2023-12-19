@@ -1,6 +1,6 @@
-<p align="center">
+<div align="center">
   <h1 style="font-size: 2em;">SJNet</h1>
-</p>
+</div>
 
 
 ## This repository includes SJNET.py, which contains the Network and Layer classes.
