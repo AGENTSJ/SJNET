@@ -1,4 +1,5 @@
 # FILEPATH: /D:/ACtive/ANN/.gitignore
 testDir/
+__pycache__/
 
 
