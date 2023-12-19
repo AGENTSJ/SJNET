@@ -1,5 +1,5 @@
 # SJNET
-## This repository contains SJNET.py which contains Network and Layer class 
+## This repository includes SJNET.py, which contains the Network and Layer classes.
 ### These can be used to create and train custom neural network
 
 ### A new Network can be initialised by 
