@@ -1,8 +1,9 @@
 from SJNET import Network ,Layer
 import pandas as pd
 
-data = pd.read_csv("data.csv",header=None,delimiter=",")
+# data preperation from data.csv
 
+data = pd.read_csv("data.csv",header=None,delimiter=",")
 X=[]
 Y=[]
 for idx,row in enumerate(data.values):
@@ -15,6 +16,7 @@ for idx,row in enumerate(data.values):
 print(len(X))
 print(Y)
 
+# network creation and training
 
 inputl = Layer(neuronCount=2,position=1)
 hidden = Layer(neuronCount=10,position=2,activation="linear")
@@ -29,3 +31,5 @@ network.add(layer=hidden2)
 network.add(layer=output)
 network.compile()
 network.Train()
+
+network.save(name="testModel")

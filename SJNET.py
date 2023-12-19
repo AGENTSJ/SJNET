@@ -2,7 +2,112 @@ import random
 import numpy as np
 import copy
 import math
+import json
 
+class Layer:
+       
+    def __init__(self,neuronCount=None,position=None,neuronvals=None,activation="linear"):
+        
+        self.X = None
+        self.Y = None
+        self.activation = activation
+        self.neuronCount = neuronCount
+        self.position = position
+        self.neuronvals = []
+        self.weights = []
+        self.bias = []
+        self.NodeDeltas=[] 
+        self.batchNeuronVals=[]
+        self.errorThresh=None
+        self.learningRate = None
+        
+        #set by setintialweights and setnodedelta
+        self.previousLayer =None
+        self.AfterLayer =None
+
+        for i in range(self.neuronCount):
+
+            self.bias.append(random.uniform(0.0001,1))
+            # self.bias.append(1)
+
+        if position==1:
+            self.neuronvals = neuronvals
+    
+    def activationfn(self):
+        funcs ={
+            "linear": lambda x :x,
+            "relu" : lambda x : max(0,x),
+            "sigmoid":lambda x : 1 / (1 + math.exp(-x))
+        }
+        return funcs[self.activation]
+
+    def setInitialWeights(self,previousLayer):
+
+        self.previousLayer = previousLayer
+
+        for i in range(self.neuronCount):
+            temp = []
+            for j in range(previousLayer.neuronCount):
+                temp.append(random.uniform(0.0001,1))
+
+
+            self.weights.append(temp)
+  
+    def loadLayer(self,weights,bias):
+        self.weights = weights
+        self.bias = bias
+
+    def setNodeDelta(self,AfterLayer,CurrentDataPoint=-1):
+        """""
+        set nodedelta value for layers
+        """""
+        self.AfterLayer = AfterLayer
+        if self.position == -1:
+            # outputlayer
+            if len(self.NodeDeltas)==0:
+                for i in range(self.neuronCount):
+
+                    nodedelta = self.neuronvals[i]-self.Y[CurrentDataPoint][i] 
+                    self.NodeDeltas.append(nodedelta)
+            else:
+                for i in range(self.neuronCount):
+
+                    nodedelta = self.neuronvals[i]-self.Y[CurrentDataPoint][i]
+                    self.NodeDeltas[i]=nodedelta
+        else:
+            # hidden layers
+            if len(self.NodeDeltas)==0:
+                
+                for i in range(self.neuronCount):
+                    nodedelta= 0
+                    for j in range(AfterLayer.neuronCount):
+                        
+                        nodedelta = nodedelta+AfterLayer.NodeDeltas[j]*AfterLayer.weights[j][i]
+                        
+                    self.NodeDeltas.append(nodedelta)
+
+            else:
+                    for i in range(self.neuronCount):
+                        nodedelta= 0
+                        for j in range(AfterLayer.neuronCount):
+                            
+                            nodedelta = nodedelta+AfterLayer.NodeDeltas[j]*AfterLayer.weights[j][i]
+                        self.NodeDeltas[i]=nodedelta
+    
+    def updateWeightsandBias(self):
+
+        len_weight = len(self.weights[0])# based on previous layer of no(neurons) lenof weights is set
+        
+        
+        for i in range(self.neuronCount):
+
+            for j in range(len_weight):
+                
+                new_Weight = self.weights[i][j] - self.learningRate * self.NodeDeltas[i] * self.previousLayer.neuronvals[j]
+                self.weights[i][j] = new_Weight
+            
+            new_Bias = self.bias[i] - self.learningRate * self.NodeDeltas[i]
+            self.bias[i]=new_Bias   
 
 class Network:
 
@@ -117,25 +222,52 @@ class Network:
             self.LayerArr[-1].batchNeuronVals = []
     
     def predict(self,inputvals):
+        "returns predicted value by the network"
         self.LayerArr[0].neuronvals = inputvals
         layercount = len(self.LayerArr)
         for i in range(layercount-1):
             self.forward(layer1=self.LayerArr[i],layer2=self.LayerArr[i+1])
-        print(self.LayerArr[-1].neuronvals)
+
+        return self.LayerArr[-1].neuronvals
 
     def save(self,name="model"):
-
-        with open(f"{name}.txt","w") as f:
-            f.write(f"name:{name}\n Lcount:{len(self.LayerArr)}")
-            f.write("\nlayers\n")
-
-        for i in range(len(self.LayerArr)-1):
+        net = {
+            "layerCount":len(self.LayerArr),
+            "neuronDistribution":[],
+            "weights":[],
+            "biases":[],
+            "actvFns":[],
+            "nodeDeltas":[]
+        }
+        for i in range(len(self.LayerArr)):
+            net["neuronDistribution"].append(self.LayerArr[i].neuronCount)
+            net["actvFns"].append(self.LayerArr[i].activation)
             if i!=0:
-                with open(f"{name}.txt","a") as f:
-                    
-                    f.write(f"{self.LayerArr[i].neuronCount}\n")
-                    f.write(f"{self.LayerArr[i].weights}\n")
-                    f.write(f"{self.LayerArr[i].bias}\n")
+                net["weights"].append(self.LayerArr[i].weights)
+                net["biases"].append(self.LayerArr[i].bias)
+                net["nodeDeltas"].append(self.LayerArr[i].NodeDeltas)
+
+        with open(f'{name}.json', 'w') as file:
+            json.dump(net, file)
+
+    def loadNetwork(self,network={}):  
+
+        for i in range(network["layerCount"]):
+            neuronCount = network["neuronDistribution"][i]
+            position = i+1
+            activation= network["actvFns"][i]
+            weights=[]
+            bias=[]
+
+            if i==network["layerCount"]-2 : position = -1
+            layer = Layer(neuronCount=neuronCount,position=position,activation=activation)
+
+            if i!=0:
+                weights = network["weights"][i-1]
+                bias = network["biases"][i-1]
+                layer.loadLayer(weights=weights,bias=bias)
+
+            self.LayerArr.append(layer)
 
     def add(self,layer=None):
         """""
@@ -147,107 +279,3 @@ class Network:
         layer.errorThresh = self.errorThresh
         layer.learningRate = self.learningRate
         self.LayerArr.append(layer)
-
-
-
-class Layer:
-       
-    def __init__(self,neuronCount=None,position=None,neuronvals=None,activation="linear"):
-        
-        self.X = None
-        self.Y = None
-        self.activation = activation
-        self.neuronCount = neuronCount
-        self.position = position
-        self.neuronvals = []
-        self.weights = []
-        self.bias = []
-        self.NodeDeltas=[] 
-        self.batchNeuronVals=[]
-        self.errorThresh=None
-        self.learningRate = None
-        
-        #set by setintialweights and setnodedelta
-        self.previousLayer =None
-        self.AfterLayer =None
-
-        for i in range(self.neuronCount):
-
-            self.bias.append(random.uniform(0.0001,1))
-            # self.bias.append(1)
-
-        if position==1:
-            self.neuronvals = neuronvals
-    
-    def activationfn(self):
-        funcs ={
-            "linear": lambda x :x,
-            "relu" : lambda x : max(0,x),
-            "sigmoid":lambda x : 1 / (1 + math.exp(-x))
-        }
-        return funcs[self.activation]
-
-    def setInitialWeights(self,previousLayer):
-
-        self.previousLayer = previousLayer
-
-        for i in range(self.neuronCount):
-            temp = []
-            for j in range(previousLayer.neuronCount):
-                temp.append(random.uniform(0.0001,1))
-
-
-            self.weights.append(temp)
-  
-    def setNodeDelta(self,AfterLayer,CurrentDataPoint=-1):
-        """""
-        set nodedelta value for layers
-        """""
-        self.AfterLayer = AfterLayer
-        if self.position == -1:
-            # outputlayer
-            if len(self.NodeDeltas)==0:
-                for i in range(self.neuronCount):
-
-                    nodedelta = self.neuronvals[i]-self.Y[CurrentDataPoint][i] 
-                    self.NodeDeltas.append(nodedelta)
-            else:
-                for i in range(self.neuronCount):
-
-                    nodedelta = self.neuronvals[i]-self.Y[CurrentDataPoint][i]
-                    self.NodeDeltas[i]=nodedelta
-        else:
-            # hidden layers
-            if len(self.NodeDeltas)==0:
-                
-                for i in range(self.neuronCount):
-                    nodedelta= 0
-                    for j in range(AfterLayer.neuronCount):
-                        
-                        nodedelta = nodedelta+AfterLayer.NodeDeltas[j]*AfterLayer.weights[j][i]
-                        
-                    self.NodeDeltas.append(nodedelta)
-
-            else:
-                    for i in range(self.neuronCount):
-                        nodedelta= 0
-                        for j in range(AfterLayer.neuronCount):
-                            
-                            nodedelta = nodedelta+AfterLayer.NodeDeltas[j]*AfterLayer.weights[j][i]
-                        self.NodeDeltas[i]=nodedelta
-    
-    def updateWeightsandBias(self):
-
-        len_weight = len(self.weights[0])# based on previous layer of no(neurons) lenof weights is set
-        
-        
-        for i in range(self.neuronCount):
-
-            for j in range(len_weight):
-                
-                new_Weight = self.weights[i][j] - self.learningRate * self.NodeDeltas[i] * self.previousLayer.neuronvals[j]
-                self.weights[i][j] = new_Weight
-            
-            new_Bias = self.bias[i] - self.learningRate * self.NodeDeltas[i]
-            self.bias[i]=new_Bias  
-            
