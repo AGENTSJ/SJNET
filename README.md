@@ -46,15 +46,12 @@ network.compile()
 ```python
 network.Train()
 ```
-### save the model (Deprecated: Not fully implemented)
-
-```python
-Network.save(name="firstModel")
-```
 ### predict with model
 
 ```python
+# use this after training is finished preferably in jupyter notebook
 network.predict(inputvals=[3.1, 2.5])
+```
 ```
 ## These functions are used and can be used as reference in Ann_Stochastic_Descent2.ipynb and test.py
 
