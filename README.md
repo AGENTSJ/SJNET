@@ -1,5 +1,5 @@
 <div align="center">
-  <h1 style="font-size: 2em;">SJNet</h1>
+  <h1 style="font-size: 3em;">SJNET</h1>
 </div>
 
 
