@@ -5,6 +5,12 @@
 ## This repository includes SJNET.py, which contains the Network and Layer classes.
 ### These can be used to create and train custom neural network
 
+### Download SJNET.py & Import SJNET 
+
+```python
+from SJNET import Network ,Layer
+```
+
 ### A new Network can be initialised by 
 
 ```python
@@ -46,13 +52,29 @@ network.compile()
 ```python
 network.Train()
 ```
+### Save the model
+
+```python
+# saved as json
+network.save(name="testModel")
+```
+### Load the model
+
+```python
+Model = {}
+with open('testModel.json', 'r') as file:
+    Model = json.load(file)
+
+#Loads the  network topology weights and biases 
+network.loadNetwork(network=Model)
+```
+
 ### predict with model
 
 ```python
-# use this after training is finished preferably in jupyter notebook
-# see Ann_Stochastic_Descent2.ipynb for more details
-network.predict(inputvals=[3.1, 2.5])
+pred_val = network.predict(inputvals=[3.1, 2.5])
 ```
-### These functions are used and can be used as reference in Ann_Stochastic_Descent2.ipynb and test.py
+### How to train and save a model -> Training_and_Saving_Model.py 
+### How to load and use the model -> Loading_Pre_Trained_Model.py
 
 
