@@ -2,6 +2,7 @@
   <h1 style="font-size: 2em;">SJNet</h1>
 </p>
 
+
 ## This repository includes SJNET.py, which contains the Network and Layer classes.
 ### These can be used to create and train custom neural network
 
