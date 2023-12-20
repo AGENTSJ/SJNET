@@ -103,11 +103,11 @@ class Layer:
 
             for j in range(len_weight):
                 
-                new_Weight = self.weights[i][j] - self.learningRate * self.NodeDeltas[i] * self.previousLayer.neuronvals[j]
+                new_Weight = self.weights[i][j] - self.learningRate * np.clip( (self.NodeDeltas[i] * self.previousLayer.neuronvals[j]) , -1 , 1) # cliping is done to avoid exploding gradient problem
                 self.weights[i][j] = new_Weight
             
-            new_Bias = self.bias[i] - self.learningRate * self.NodeDeltas[i]
-            self.bias[i]=new_Bias   
+            new_Bias = self.bias[i] - self.learningRate * np.clip( self.NodeDeltas[i] , -1 , 1) # cliping is done to avoid exploding gradient problem
+            self.bias[i]=new_Bias      
 
 class Network:
 
@@ -246,10 +246,11 @@ class Network:
                 net["weights"].append(self.LayerArr[i].weights)
                 net["biases"].append(self.LayerArr[i].bias)
                 net["nodeDeltas"].append(self.LayerArr[i].NodeDeltas)
-
+        print("saving.....")
         with open(f'{name}.json', 'w') as file:
             json.dump(net, file)
-
+        print("saved.....")
+    
     def loadNetwork(self,network={}):  
 
         for i in range(network["layerCount"]):

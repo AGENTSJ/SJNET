@@ -4,7 +4,7 @@ import json
 network = Network()
 
 Model = {}
-with open('testModel.json', 'r') as file:
+with open('./savedodels/testModel.json', 'r') as file:
     Model = json.load(file)
 
 #Loads the  network topology weights and biases 
