@@ -12,20 +12,21 @@
 from SJNET import Network ,Layer
 ```
 
-### A new Network can be initialised by 
+### A new Network can be initialized by 
 
 ```python
 # provide the dataset X and Y 
 network = Network(X=X,Y=Y,learningRate=0.0002,epoch=1000,errorThresh=3)
 ```
-### Declare or initilise layers with its coresponding arguments
-- neuronCount :number of neurons required in the layer
+### Declare or initialize layers with its coresponding arguments 
 
-- position    :position of layer in network
+- neuronCount : number of neurons required in the layer
 
-  - Note: (1 for input layer and -1 for output layer)
+- position    : position of layer in network
 
-- activation  :required activation function , avilable("linear","relu")
+  - Note : (1 for input layer and -1 for output layer)
+
+- activation  : required activation function , avilable("linear","relu")
 
 ```python
 #Note: position must be (1 for input layer and -1 for output layer)
