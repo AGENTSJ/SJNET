@@ -77,5 +77,6 @@ pred_val = network.predict(inputvals=[3.1, 2.5])
 ```
 ### How to train and save a model -> Training_and_Saving_Model.py 
 ### How to load and use the model -> Loading_Pre_Trained_Model.py
+#### It uses stochastic gradient descent, just in case you are curious.
 
 
