@@ -15,7 +15,9 @@ from SJNET import Network ,Layer
 ### A new Network can be initialized by 
 
 ```python
-# provide the dataset X and Y 
+# provide the dataset X and Y
+# each element is Y must be an array [] , Y = [[y1..y1n],[y2..y2n]...[yN..yNn]]
+
 network = Network(X=X,Y=Y,learningRate=0.0002,epoch=1000,errorThresh=3)
 ```
 ### Declare or initialize layers with its coresponding arguments 
