@@ -54,6 +54,7 @@ class Layer:
             self.weights.append(temp)
   
     def loadLayer(self,weights,bias):
+        "loads weights and biases into layer when using loadnetwork"
         self.weights = weights
         self.bias = bias
 
@@ -67,12 +68,14 @@ class Layer:
             if len(self.NodeDeltas)==0:
                 for i in range(self.neuronCount):
 
-                    nodedelta = self.neuronvals[i]-self.Y[CurrentDataPoint][i] 
+                    nodedelta = self.neuronvals[i]-self.Y[CurrentDataPoint][i]
+                    if self.activation=="sigmoid":nodedelta*self.neuronvals[i]*(1-self.neuronvals[i]) #handling if sigmoid is used
                     self.NodeDeltas.append(nodedelta)
             else:
                 for i in range(self.neuronCount):
 
                     nodedelta = self.neuronvals[i]-self.Y[CurrentDataPoint][i]
+                    if self.activation=="sigmoid":nodedelta*self.neuronvals[i]*(1-self.neuronvals[i]) #handling if sigmoid is used
                     self.NodeDeltas[i]=nodedelta
         else:
             # hidden layers
@@ -83,6 +86,7 @@ class Layer:
                     for j in range(AfterLayer.neuronCount):
                         
                         nodedelta = nodedelta+AfterLayer.NodeDeltas[j]*AfterLayer.weights[j][i]
+                        if self.activation=="sigmoid":nodedelta*self.neuronvals[i]*(1-self.neuronvals[i]) #handling if sigmoid is used
                         
                     self.NodeDeltas.append(nodedelta)
 
@@ -92,6 +96,7 @@ class Layer:
                         for j in range(AfterLayer.neuronCount):
                             
                             nodedelta = nodedelta+AfterLayer.NodeDeltas[j]*AfterLayer.weights[j][i]
+                            if self.activation=="sigmoid":nodedelta*self.neuronvals[i]*(1-self.neuronvals[i]) #handling if sigmoid is used
                         self.NodeDeltas[i]=nodedelta
     
     def updateWeightsandBias(self):
@@ -107,11 +112,12 @@ class Layer:
                 self.weights[i][j] = new_Weight
             
             new_Bias = self.bias[i] - self.learningRate * np.clip( self.NodeDeltas[i] , -1 , 1) # cliping is done to avoid exploding gradient problem
-            self.bias[i]=new_Bias      
+            self.bias[i]=new_Bias   
+            
 
 class Network:
 
-    def __init__(self,X=None,Y=None,errorThresh = 0.01,learningRate=0.02,epoch=200):
+    def __init__(self,X=None,Y=None,errorThresh = 0.001,learningRate=0.02,epoch=200):
         """"
         NOTE : provide X and Y dataset with learning rate and errorthreshold 
         """""
@@ -121,7 +127,7 @@ class Network:
         self.errorThresh=errorThresh
         self.learningRate = learningRate
         self.epoch = epoch
-             
+                  
     def bind(self,layer1=None,layer2=None):
         "sets the initial weights of the ANN"
 
@@ -180,7 +186,7 @@ class Network:
         for i in range(len(self.LayerArr[-1].batchNeuronVals)):     
             for j in range(len(self.Y[i])):
                 
-                error=error+0.5*(self.LayerArr[-1].batchNeuronVals[i][j]-self.Y[i][j])**2
+                error=error+(1/len(self.Y))*(self.LayerArr[-1].batchNeuronVals[i][j]-self.Y[i][j])**2
         return error
       
     def Train(self):
@@ -222,12 +228,11 @@ class Network:
             self.LayerArr[-1].batchNeuronVals = []
     
     def predict(self,inputvals):
-        "returns predicted value by the network"
+        "returns predicted output by the network"
         self.LayerArr[0].neuronvals = inputvals
         layercount = len(self.LayerArr)
         for i in range(layercount-1):
             self.forward(layer1=self.LayerArr[i],layer2=self.LayerArr[i+1])
-
         return self.LayerArr[-1].neuronvals
 
     def save(self,name="model"):
@@ -250,9 +255,9 @@ class Network:
         with open(f'{name}.json', 'w') as file:
             json.dump(net, file)
         print("saved.....")
-    
-    def loadNetwork(self,network={}):  
 
+    def loadNetwork(self,network={}):  
+        
         for i in range(network["layerCount"]):
             neuronCount = network["neuronDistribution"][i]
             position = i+1
