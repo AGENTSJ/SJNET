@@ -4,6 +4,7 @@ import copy
 import math
 import json
 
+
 class Layer:
        
     def __init__(self,neuronCount=None,position=None,neuronvals=None,activation="linear"):
@@ -20,6 +21,7 @@ class Layer:
         self.batchNeuronVals=[]
         self.errorThresh=None
         self.learningRate = None
+        self.gradArr=[]
         
         #set by setintialweights and setnodedelta
         self.previousLayer =None
@@ -42,17 +44,24 @@ class Layer:
         return funcs[self.activation]
 
     def setInitialWeights(self,previousLayer):
+        "uses uniform distribution"
 
-        self.previousLayer = previousLayer
-
+        self.previousLayer = previousLayer 
+        fan_in = previousLayer.neuronCount
+        upperBound =1/fan_in
+        lowerBound = -upperBound
         for i in range(self.neuronCount):
             temp = []
             for j in range(previousLayer.neuronCount):
-                temp.append(random.uniform(0.0001,1))
-
+                
+                temp.append(random.uniform(lowerBound,upperBound))
 
             self.weights.append(temp)
-  
+
+        for i in range(self.neuronCount):
+
+            self.bias.append(random.uniform(lowerBound,upperBound))
+            
     def loadLayer(self,weights,bias):
         "loads weights and biases into layer when using loadnetwork"
         self.weights = weights
@@ -103,18 +112,43 @@ class Layer:
 
         len_weight = len(self.weights[0])# based on previous layer of no(neurons) lenof weights is set
         
-        
+        #setting gradient array
+        if len(self.gradArr)==0:
+
+            for i in range(self.neuronCount):
+                tempGrad=[]
+                for j in range(len_weight):
+                    
+                   tempGrad.append (   self.NodeDeltas[i] * self.previousLayer.neuronvals[j] )
+                
+                self.gradArr.append(np.array(tempGrad))
+        else:
+
+            for i in range(self.neuronCount):
+                tempGrad=[]
+                for j in range(len_weight):
+                    
+                    tempGrad.append(  self.NodeDeltas[i] * self.previousLayer.neuronvals[j] )
+                
+                self.gradArr[i]=np.array(tempGrad)
+
+        # performing l2 normalisation // handling exploding gradient 
         for i in range(self.neuronCount):
 
             for j in range(len_weight):
+
+               
+                l2norm = np.linalg.norm(self.gradArr[i][j])
                 
-                new_Weight = self.weights[i][j] - self.learningRate * np.clip( (self.NodeDeltas[i] * self.previousLayer.neuronvals[j]) , -1 , 1) # cliping is done to avoid exploding gradient problem
+                if l2norm>1.0:
+                    self.gradArr[i][j]= self.gradArr[i][j]/l2norm
+                
+                new_Weight = self.weights[i][j] - self.learningRate *  self.gradArr[i][j] 
                 self.weights[i][j] = new_Weight
             
-            new_Bias = self.bias[i] - self.learningRate * np.clip( self.NodeDeltas[i] , -1 , 1) # cliping is done to avoid exploding gradient problem
-            self.bias[i]=new_Bias   
-            
-
+            new_Bias = self.bias[i] - self.learningRate *  self.gradArr[i][j] 
+            self.bias[i]=new_Bias
+   
 class Network:
 
     def __init__(self,X=None,Y=None,errorThresh = 0.001,learningRate=0.02,epoch=200):
@@ -191,7 +225,8 @@ class Network:
       
     def Train(self):
         "Trains the network for specified epoch"
-        errorrate = 9999999 
+        errorrate = 9999999
+        least_Error= 9999999
         layercount = len(self.LayerArr)
         eph =1
         while (eph < self.epoch+1):
@@ -217,8 +252,15 @@ class Network:
                     
 
             eph=eph+1       
+
                 
             errorrate = self.BatchError()
+
+            if errorrate < least_Error:
+                self.save(name="BestError")
+                least_Error = errorrate
+                
+            
             print("error_rate",errorrate)
             
             if(errorrate < self.errorThresh):
@@ -245,16 +287,17 @@ class Network:
             "nodeDeltas":[]
         }
         for i in range(len(self.LayerArr)):
+
             net["neuronDistribution"].append(self.LayerArr[i].neuronCount)
             net["actvFns"].append(self.LayerArr[i].activation)
             if i!=0:
                 net["weights"].append(self.LayerArr[i].weights)
                 net["biases"].append(self.LayerArr[i].bias)
                 net["nodeDeltas"].append(self.LayerArr[i].NodeDeltas)
-        print("saving.....")
+        # print("saving.....")
         with open(f'{name}.json', 'w') as file:
             json.dump(net, file)
-        print("saved.....")
+        # print("saved.....")
 
     def loadNetwork(self,network={}):  
         

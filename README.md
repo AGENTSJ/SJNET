@@ -8,7 +8,6 @@
 ### Import SJNET 
 
 ```python
-# download SJNET.py then continue
 from SJNET import Network ,Layer
 ```
 
