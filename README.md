@@ -5,6 +5,11 @@
 ## This repository includes SJNET.py, which contains the Network and Layer classes.
 ### These can be used to create and train custom neural network
 
+### Install SJNET
+
+```bash
+pip install SJNET
+```
 ### Import SJNET 
 
 ```python
