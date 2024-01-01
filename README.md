@@ -1,6 +1,6 @@
 <div align="center">
 <!--   <h1 style="font-size: 3em;">SJNET</h1> -->
-<img src="https://github.com/AGENTSJ/SJNET/assets/109428699/9ab8e503-ba3c-4715-80e0-48bf322614c0" width = "250px" height="150px" />
+<img src="https://github.com/AGENTSJ/SJNET/assets/109428699/9ab8e503-ba3c-4715-80e0-48bf322614c0" width = "250px"  />
 </div>
 
 ## This repository includes SJNET.py, which contains the Network and Layer classes.
