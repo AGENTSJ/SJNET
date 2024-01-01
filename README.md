@@ -1,4 +1,4 @@
-<div align="center">
+<div align="center" style="background-color: black; padding: 20px;">
 <!--   <h1 style="font-size: 3em;">SJNET</h1> -->
 <img src="https://github.com/AGENTSJ/SJNET/assets/109428699/9ab8e503-ba3c-4715-80e0-48bf322614c0" width = "250px"  />
 </div>
