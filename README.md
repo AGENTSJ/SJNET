@@ -1,6 +1,5 @@
 
-</style>
-<div align="center" background-color="black">
+<div align="center" backgroundColor="black">
 <img src="https://github.com/AGENTSJ/SJNET/assets/109428699/9ab8e503-ba3c-4715-80e0-48bf322614c0" width = "250px" />
 </div>
 
