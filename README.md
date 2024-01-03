@@ -70,11 +70,12 @@ network.save(name="testModel")
 ### Load the model
 
 ```python
+network = Network()
 Model = {}
 with open('./savedmodels/testModel.json', 'r') as file:
     Model = json.load(file)
 
-#Loads the  network topology weights and biases 
+#Loads the  network with weights and biases 
 network.loadNetwork(network=Model)
 ```
 
