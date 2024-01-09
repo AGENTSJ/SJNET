@@ -33,7 +33,7 @@ network = Network(X=X,Y=Y,learningRate=0.0002,epoch=1000,errorThresh=3)
 
   - Note : (1 for input layer and -1 for output layer)
 
-- activation  : required activation function , avilable("linear","relu")
+- activation  : required activation function , avilable("linear","relu","sigmoid")
 
 ```python
 #Note: position must be (1 for input layer and -1 for output layer)
