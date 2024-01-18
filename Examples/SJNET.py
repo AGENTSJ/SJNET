@@ -4,7 +4,6 @@ import copy
 import math
 import json
 
-
 class Layer:
        
     def __init__(self,neuronCount=None,position=None,neuronvals=None,activation="linear"):
@@ -19,6 +18,7 @@ class Layer:
         self.bias = []
         self.NodeDeltas=[] 
         self.batchNeuronVals=[]
+        self.batchError =0
         self.errorThresh=None
         self.learningRate = None
         self.gradArr=[]
@@ -135,10 +135,10 @@ class Layer:
         # performing l2 normalisation // handling exploding gradient 
         for i in range(self.neuronCount):
 
+            l2norm = np.linalg.norm(self.gradArr[i])
             for j in range(len_weight):
 
-               
-                l2norm = np.linalg.norm(self.gradArr[i][j])
+                # l2norm = np.linalg.norm(self.gradArr[i][j])
                 
                 if l2norm>1.0:
                     self.gradArr[i][j]= self.gradArr[i][j]/l2norm
@@ -180,6 +180,7 @@ class Network:
             if(layer2.position==-1):
                 temp =copy.deepcopy(layer2.neuronvals)
                 layer2.batchNeuronVals.append(temp)
+                
 
         else:
             for i in range(layer2.neuronCount):
@@ -188,7 +189,8 @@ class Network:
 
             if(layer2.position==-1):
                 temp =copy.deepcopy(layer2.neuronvals)
-                layer2.batchNeuronVals.append(temp)
+                layer2.batchNeuronVals.append(temp)  
+                # layer2        
             
     def backPropagate(self,currentLayer=None,AfterLayer=None,CurrentDataPoint=-1):
         """""
@@ -198,9 +200,17 @@ class Network:
         2.Update werights and biases (a function in layer class)
         
         """""
+        #updating batch error after forwarding a datapoint completely(just at start of backprop)
+        if currentLayer.position ==-1:
+            error =0
+            for i in range(len(self.Y[CurrentDataPoint])):
+                error = error+(currentLayer.neuronvals[i]-self.Y[CurrentDataPoint][i])**2
+            currentLayer.batchError = currentLayer.batchError+error
+            
+        #normal backpropagation
         currentLayer.setNodeDelta(AfterLayer,CurrentDataPoint=CurrentDataPoint)
         currentLayer.updateWeightsandBias()
-        
+         
     def compile(self):
         """""
         calls bind function for every layer : initilizes weights in Ann
@@ -215,12 +225,9 @@ class Network:
         """""
         find the error after 1 epoch
         """""
-        error = 0
-        
-        for i in range(len(self.LayerArr[-1].batchNeuronVals)):     
-            for j in range(len(self.Y[i])):
-                
-                error=error+(1/len(self.Y))*(self.LayerArr[-1].batchNeuronVals[i][j]-self.Y[i][j])**2
+        #batch error variable is updated in backpropagation function      
+        error = 1/len(self.Y)*self.LayerArr[-1].batchError
+        self.LayerArr[-1].batchError=0
         return error
       
     def Train(self):
@@ -265,7 +272,6 @@ class Network:
             
             if(errorrate < self.errorThresh):
                 print("optimised")
-                print(self.LayerArr[-1].batchNeuronVals)
                 break
             self.LayerArr[-1].batchNeuronVals = []
     
