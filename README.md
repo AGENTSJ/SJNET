@@ -1,8 +1,9 @@
+
 <div align="center">
-  <h1 style="font-size: 3em;">SJNET</h1>
+<img src="https://github.com/AGENTSJ/SJNET/assets/109428699/9ab8e503-ba3c-4715-80e0-48bf322614c0" width = "250px" />
 </div>
 
-## This repository includes SJNET.py, which contains the Network and Layer classes.
+## SJNET is a Neural Network Framewrork
 ### These can be used to create and train custom neural network
 
 ### Install SJNET
@@ -32,7 +33,7 @@ network = Network(X=X,Y=Y,learningRate=0.0002,epoch=1000,errorThresh=3)
 
   - Note : (1 for input layer and -1 for output layer)
 
-- activation  : required activation function , avilable("linear","relu")
+- activation  : required activation function , avilable("linear","relu","sigmoid")
 
 ```python
 #Note: position must be (1 for input layer and -1 for output layer)
@@ -69,11 +70,12 @@ network.save(name="testModel")
 ### Load the model
 
 ```python
+network = Network()
 Model = {}
 with open('./savedmodels/testModel.json', 'r') as file:
     Model = json.load(file)
 
-#Loads the  network topology weights and biases 
+#Loads the  network with weights and biases 
 network.loadNetwork(network=Model)
 ```
 
