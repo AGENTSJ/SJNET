@@ -13,27 +13,22 @@ class Layer:
         self.activation = activation
         self.neuronCount = neuronCount
         self.position = position
-        self.neuronvals = []
-        self.weights = []
-        self.bias = []
-        self.NodeDeltas=[] 
-        self.batchNeuronVals=[]
+        self.neuronvals = np.zeros(neuronCount)
+        self.weights = np.array([])
+        self.bias = np.array([])
+        self.NodeDeltas=np.zeros(neuronCount)
+        self.gradArr=[]
+        
         self.batchError =0
         self.errorThresh=None
         self.learningRate = None
-        self.gradArr=[]
         
         #set by setintialweights and setnodedelta
         self.previousLayer =None
         self.AfterLayer =None
 
-        for i in range(self.neuronCount):
-
-            self.bias.append(random.uniform(0.0001,1))
-            # self.bias.append(1)
-
         if position==1:
-            self.neuronvals = neuronvals
+            self.neuronvals = np.array(neuronvals)
     
     def activationfn(self):
         funcs ={
@@ -50,19 +45,12 @@ class Layer:
         fan_in = previousLayer.neuronCount
         upperBound =1/fan_in
         lowerBound = -upperBound
-        for i in range(self.neuronCount):
-            temp = []
-            for j in range(previousLayer.neuronCount):
-                
-                temp.append(random.uniform(lowerBound,upperBound))
 
-            self.weights.append(temp)
+        self.weights = np.random.uniform(lowerBound,upperBound,(self.neuronCount,previousLayer.neuronCount)) #3rdparm(row,col)
 
-        for i in range(self.neuronCount):
-
-            self.bias.append(random.uniform(lowerBound,upperBound))
+        self.bias = np.random.uniform(lowerBound, upperBound, self.neuronCount)
             
-    def loadLayer(self,weights,bias):
+    def loadLayer(self,weights,bias):#IMPROVE
         "loads weights and biases into layer when using loadnetwork"
         self.weights = weights
         self.bias = bias
@@ -74,39 +62,20 @@ class Layer:
         self.AfterLayer = AfterLayer
         if self.position == -1:
             # outputlayer
-            if len(self.NodeDeltas)==0:
-                for i in range(self.neuronCount):
+            for i in range(self.neuronCount):
 
-                    nodedelta = self.neuronvals[i]-self.Y[CurrentDataPoint][i]
-                    if self.activation=="sigmoid":nodedelta*self.neuronvals[i]*(1-self.neuronvals[i]) #handling if sigmoid is used
-                    self.NodeDeltas.append(nodedelta)
-            else:
-                for i in range(self.neuronCount):
-
-                    nodedelta = self.neuronvals[i]-self.Y[CurrentDataPoint][i]
-                    if self.activation=="sigmoid":nodedelta*self.neuronvals[i]*(1-self.neuronvals[i]) #handling if sigmoid is used
-                    self.NodeDeltas[i]=nodedelta
+                nodedelta = self.neuronvals[i]-self.Y[CurrentDataPoint][i]
+                if self.activation=="sigmoid":nodedelta*self.neuronvals[i]*(1-self.neuronvals[i]) #handling if sigmoid is used
+                self.NodeDeltas[i]=nodedelta
         else:
             # hidden layers
-            if len(self.NodeDeltas)==0:
-                
-                for i in range(self.neuronCount):
-                    nodedelta= 0
-                    for j in range(AfterLayer.neuronCount):
-                        
-                        nodedelta = nodedelta+AfterLayer.NodeDeltas[j]*AfterLayer.weights[j][i]
-                        if self.activation=="sigmoid":nodedelta*self.neuronvals[i]*(1-self.neuronvals[i]) #handling if sigmoid is used
-                        
-                    self.NodeDeltas.append(nodedelta)
-
-            else:
-                    for i in range(self.neuronCount):
-                        nodedelta= 0
-                        for j in range(AfterLayer.neuronCount):
-                            
-                            nodedelta = nodedelta+AfterLayer.NodeDeltas[j]*AfterLayer.weights[j][i]
-                            if self.activation=="sigmoid":nodedelta*self.neuronvals[i]*(1-self.neuronvals[i]) #handling if sigmoid is used
-                        self.NodeDeltas[i]=nodedelta
+            for i in range(self.neuronCount):
+                nodedelta= 0
+                for j in range(AfterLayer.neuronCount):
+                    
+                    nodedelta = nodedelta+AfterLayer.NodeDeltas[j]*AfterLayer.weights[j][i]
+                    if self.activation=="sigmoid":nodedelta*self.neuronvals[i]*(1-self.neuronvals[i]) #handling if sigmoid is used
+                self.NodeDeltas[i]=nodedelta
     
     def updateWeightsandBias(self):
 
@@ -114,14 +83,7 @@ class Layer:
         
         #setting gradient array
         if len(self.gradArr)==0:
-
-            for i in range(self.neuronCount):
-                tempGrad=[]
-                for j in range(len_weight):
-                    
-                   tempGrad.append (   self.NodeDeltas[i] * self.previousLayer.neuronvals[j] )
-                
-                self.gradArr.append(np.array(tempGrad))
+            self.gradArr=np.zeros((self.neuronCount,len_weight))
         else:
 
             for i in range(self.neuronCount):
@@ -156,8 +118,8 @@ class Network:
         NOTE : provide X and Y dataset with learning rate and errorthreshold 
         """""
         self.LayerArr = []
-        self.X =X
-        self.Y = Y
+        self.X =np.array(X)
+        self.Y = np.array(Y)
         self.errorThresh=errorThresh
         self.learningRate = learningRate
         self.epoch = epoch
@@ -170,28 +132,10 @@ class Network:
     def forward(self,layer1=None,layer2=None): 
         "performs forward passing for all layers in network with activation function"
 
-        if len(layer2.neuronvals)==0:
-
-            for i in range(layer2.neuronCount):
-                activfn = layer2.activationfn()
-                layer2.neuronvals.append(activfn(np.dot(layer1.neuronvals,layer2.weights[i])+layer2.bias[i]))
-                
-            
-            if(layer2.position==-1):
-                temp =copy.deepcopy(layer2.neuronvals)
-                layer2.batchNeuronVals.append(temp)
-                
-
-        else:
-            for i in range(layer2.neuronCount):
-                activfn = layer2.activationfn()
-                layer2.neuronvals[i]=activfn(np.dot(layer1.neuronvals,layer2.weights[i])+layer2.bias[i])
-
-            if(layer2.position==-1):
-                temp =copy.deepcopy(layer2.neuronvals)
-                layer2.batchNeuronVals.append(temp)  
-                # layer2        
-            
+        for i in range(layer2.neuronCount):
+            activfn = layer2.activationfn()
+            layer2.neuronvals[i]=activfn(np.dot(layer1.neuronvals,layer2.weights[i])+layer2.bias[i])
+          
     def backPropagate(self,currentLayer=None,AfterLayer=None,CurrentDataPoint=-1):
         """""
         performs back propagation by
@@ -273,8 +217,7 @@ class Network:
             if(errorrate < self.errorThresh):
                 print("optimised")
                 break
-            self.LayerArr[-1].batchNeuronVals = []
-    
+   
     def predict(self,inputvals):
         "returns predicted output by the network"
         self.LayerArr[0].neuronvals = inputvals
@@ -297,9 +240,9 @@ class Network:
             net["neuronDistribution"].append(self.LayerArr[i].neuronCount)
             net["actvFns"].append(self.LayerArr[i].activation)
             if i!=0:
-                net["weights"].append(self.LayerArr[i].weights)
-                net["biases"].append(self.LayerArr[i].bias)
-                net["nodeDeltas"].append(self.LayerArr[i].NodeDeltas)
+                net["weights"].append(self.LayerArr[i].weights.tolist())
+                net["biases"].append(self.LayerArr[i].bias.tolist())
+                net["nodeDeltas"].append(self.LayerArr[i].NodeDeltas.tolist())
         # print("saving.....")
         with open(f'{name}.json', 'w') as file:
             json.dump(net, file)
